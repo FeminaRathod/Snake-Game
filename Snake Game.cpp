@@ -1,220 +1,186 @@
-// Snake Game 1.cpp : This file contains the 'main' function. Program execution begins and ends there.
-
 #include <iostream>
-#include <cstdlib> // For rand()
-#include <conio.h>  // For _kbhit() and _getch()
-#include <windows.h> // For Sleep()
-#include <vector>
+#include <cstdlib>
+#include <conio.h>
+#include <windows.h>
+#include <queue>
+#include <set>
 
 using namespace std;
 
-enum eDirection
-{
-    STOP = 0,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
+enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
+const int width = 20, height = 20;
+
+class Food {
+public:
+    int x, y;
+    Food() { Respawn(); }
+    void Respawn() { x = rand() % width; y = rand() % height; }
 };
 
-const int width = 20;
-const int height = 20;
+class Snake {
+public:
+    queue<pair<int, int>> body;
+    set<pair<int, int>> bodySet;  // Faster lookup for self-collision
+    eDirection direction;
+    pair<int, int> head;
 
-bool gameOver;
-int x, y, foodX, foodY, score;
-vector<pair<int, int>> snake; // Stores snake body
-eDirection direction;
+    Snake() {
+        direction = RIGHT;
+        head = { width / 2, height / 2 };
 
-void Setup()
-{
-    gameOver = false;
-    direction = STOP;
-
-    x = width / 2;
-    y = height / 2;
-
-    foodX = rand() % width;
-    foodY = rand() % height;
-    score = 0;
-
-    snake.clear();
-    snake.push_back({ x, y });
-}
-
-void Draw()
-{
-    system("cls"); // Clear screen
-
-    for (int i = 0; i < width + 2; i++)
-    {
-        cout << "#";
+        // Initialize snake with three segments
+        for (int i = 0; i < 3; i++) {
+            body.push({ head.first - i, head.second });
+            bodySet.insert({ head.first - i, head.second });
+        }
     }
 
-    cout << endl;
+    void Move(bool grow) {
+        int prevX = head.first, prevY = head.second;
 
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            if (j == 0)
-            {
-                cout << "#";
-            }
-
-            if (i == y && j == x)
-            {
-                cout << "O"; // Snake head
-            }
-            else if (i == foodY && j == foodX)
-            {
-                cout << "F"; // Food
-            }
-            else
-            {
-                bool print = false;
-
-                for (auto s : snake)
-                {
-                    if (s.first == j && s.second == i)
-                    {
-                        cout << "o";
-                        print = true;
-                    }
-                }
-
-                if (!print)
-                {
-                    cout << " ";
-                }
-            }
-
-            if (j == width - 1)
-            {
-                cout << "#";
-            }
+        switch (direction) {
+        case LEFT: head.first--; break;
+        case RIGHT: head.first++; break;
+        case UP: head.second--; break;
+        case DOWN: head.second++; break;
+        default: break;
         }
 
+        if (head.first >= width || head.first < 0 ||
+            head.second >= height || head.second < 0) {
+            return;  // Prevent out-of-bounds update
+        }
+
+        // Add new head
+        body.push(head);
+        bodySet.insert(head);
+
+        // Remove tail if not growing
+        if (!grow) {
+            pair<int, int> tail = body.front();
+            body.pop();
+            bodySet.erase(tail);
+        }
+    }
+
+    bool CollidedWithSelf() {
+        return bodySet.count(head) > 1; // If head position appears twice, it's a collision
+    }
+};
+
+class GameBoard {
+public:
+    Snake snake;
+    Food food;
+    bool gameOver;
+    int score;
+
+    GameBoard() { Reset(); }
+
+    void Reset() {
+        gameOver = false;
+        score = 0;
+        snake = Snake();
+        food.Respawn();
+    }
+
+    void Draw() {
+        //system("cls");
+        HANDLE hConsole =
+            GetStdHandle(STD_OUTPUT_HANDLE);
+        COORD cursorPosition = { 0,0 };
+        SetConsoleCursorPosition( hConsole, cursorPosition);
+
+        char grid[height][width] = {};
+
+        // Place food
+        grid[food.y][food.x] = 'F';
+
+        // Place snake
+        queue<pair<int, int>> temp = snake.body;
+        while (!temp.empty()) {
+            pair<int, int> segment = temp.front();
+            temp.pop();
+            grid[segment.second][segment.first] = 'o';
+        }
+        grid[snake.head.second][snake.head.first] = 'O';
+
+        // Draw board
+        for (int i = 0; i < width + 2; i++) cout << "#";
         cout << endl;
+
+        for (int i = 0; i < height; i++) {
+            cout << "#";
+            for (int j = 0; j < width; j++) {
+                if (grid[i][j] == 0) cout << " ";
+                else cout << grid[i][j];
+            }
+            cout << "#\n";
+        }
+
+        for (int i = 0; i < width + 2; i++) cout << "#";
+        cout << "\nScore: " << score << endl;
     }
 
-    for (int i = 0; i < width + 2; i++)
-    {
-        cout << "#";
-    }
-
-    cout << "\nScore: " << score << endl;
-}
-
-void Input()
-{
-    if (_kbhit())
-    {
-        switch (_getch())
-        {
-        case 'a': direction = LEFT;
-            break;
-
-        case 'd': direction = RIGHT;
-            break;
-
-        case 'w': direction = UP;
-            break;
-
-        case 's': direction = DOWN;
-            break;
-
-        case 'x': gameOver = true;
-            break;
+    void Input() {
+        if (_kbhit()) {
+            switch (_getch()) {
+            case 'a': if (snake.direction != RIGHT) snake.direction = LEFT; break;
+            case 'd': if (snake.direction != LEFT) snake.direction = RIGHT; break;
+            case 'w': if (snake.direction != DOWN) snake.direction = UP; break;
+            case 's': if (snake.direction != UP) snake.direction = DOWN; break;
+            case 'x': gameOver = true; break;
+            }
         }
     }
-}
 
-void Logic()
-{
-    int prevX = snake[0].first;
-    int prevY = snake[0].second;
-    int prev2X, prev2Y;
+    void Logic() {
+        if (gameOver) return;
 
-    snake[0].first = x;
-    snake[0].second = y;
+        bool grow = (snake.head.first == food.x && snake.head.second == food.y);
+        if (grow) {
+            score += 10;
+            food.Respawn();
+        }
 
-    for (int i = 1; i < snake.size(); i++)
-    {
-        prev2X = snake[i].first;
-        prev2Y = snake[i].second;
+        snake.Move(grow);
 
-        snake[i].first = prevX;
-        snake[i].second = prevY;
-
-        prevX = prev2X;
-        prevY = prev2Y;
-    }
-
-    switch (direction)
-    {
-    case LEFT: x--;
-        break;
-
-    case RIGHT: x++;
-        break;
-
-    case UP: y--;
-        break;
-
-    case DOWN: y++;
-        break;
-
-    default:
-        break;
-    }
-
-    if (x >= width || x < 0 || y >= height || y < 0)
-    {
-        gameOver = true;
-    }
-
-    for (int i = 1; i < snake.size(); i++) // Collision with itself
-    {
-        if (snake[i].first == x && snake[i].second == y)
-        {
+        // Ensure the game doesn't end on first render
+        if (snake.head.first >= width || snake.head.first < 0 ||
+            snake.head.second >= height || snake.head.second < 0 ||
+            snake.CollidedWithSelf()) {
             gameOver = true;
         }
     }
 
-    if (x == foodX && y == foodY)
-    {
-        score += 10;
-        foodX = rand() % width;
-        foodY = rand() % height;
-        snake.push_back({ -1, -1 });
+    void GameOverScreen() {
+        cout << "Game Over! Final Score: " << score << endl;
+        cout << "Press R to restart or X to exit." << endl;
+        while (true) {
+            if (_kbhit()) {
+                char ch = _getch();
+                if (ch == 'r' || ch == 'R') {
+                    Reset();
+                    break;
+                }
+                if (ch == 'x' || ch == 'X') {
+                    exit(0);
+                }
+            }
+        }
     }
-}
+};
 
-int main()
-{
-    std::cout << "Hello World!\n";
-
-    Setup();
-
-    while (!gameOver)
-    {
-        Draw();
-        Input();
-        Logic();
-        Sleep(100);
+int main() {
+    GameBoard game;
+    while (true) {
+        while (!game.gameOver) {
+            game.Draw();
+            game.Input();
+            game.Logic();
+            Sleep(100);
+        }
+        game.GameOverScreen();
     }
-
-    cout << "Game Over! Final Score: " << score << endl;
     return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
