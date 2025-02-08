@@ -21,7 +21,8 @@ The objective is to eat the food (marked as 'F') and avoid collisions with the w
 
 ![image alt](https://github.com/FeminaRathod/Snake-Game/blob/1e16c75315ae1a374a10e6c1f5d3eee56239e168/Screenshot%202025-02-08%20225614.png)
 
-Data Structures Used
+Data Structures Used:
+
 1)Queue (std::queue):
 	Used in the Snake class to store the segments of the snake's body.
 	Allows easy insertion of new segments at the head and removal of old segments at the tail, which is efficient for the snake's movement.
@@ -35,7 +36,7 @@ Data Structures Used
 	Provides a convenient way to manage and manipulate (x, y) coordinates.
 
 
-Class Structure
+Class Structure:
 
 	Food Class:
 
