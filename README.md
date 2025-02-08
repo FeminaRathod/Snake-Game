@@ -19,6 +19,8 @@ X: Exit Game
 
 The objective is to eat the food (marked as 'F') and avoid collisions with the wall or the snake's own body.
 
+![image alt](https://github.com/FeminaRathod/Snake-Game/blob/1e16c75315ae1a374a10e6c1f5d3eee56239e168/Screenshot%202025-02-08%20225614.png)
+
 Data Structures Used
 1)Queue (std::queue):
 	Used in the Snake class to store the segments of the snake's body.
