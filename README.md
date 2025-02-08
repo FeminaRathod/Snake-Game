@@ -41,40 +41,60 @@ Class Structure:
 	Food Class:
 
 Attributes:
+
 •	int x, y: Coordinates of the food on the game board.
 
 Methods:
+
 •	Food(): Constructor that initializes the food by calling Respawn().
+
 •	void Respawn(): Randomly generates new coordinates for the food within the game board's boundaries.
 
 	Snake Class:
 
 Attributes:
+
 •	queue<pair<int, int>> body: Stores the segments of the snake's body.
+
 •	set<pair<int, int>> bodySet: Keeps track of the snake's body segments for collision detection.
+
 •	eDirection direction: Enum representing the current direction of the snake's movement.
+
 •	pair<int, int> head: Coordinates of the snake's head.
 
 Methods:
+
 •	Snake(): Constructor that initializes the snake with three segments, sets the initial direction to RIGHT, and places the head at the center of the board.
+
 •	void Move(bool grow): Moves the snake in the current direction. If the snake eats food (grow is true), it grows by not removing the tail segment.
+
 •	bool CollidedWithSelf(): Checks if the snake's head has collided with any other part of its body.
 
 	GameBoard Class:
 
 Attributes:
+
 •	Snake snake: An instance of the Snake class representing the snake in the game.
+
 •	Food food: An instance of the Food class representing the food in the game.
+
 •	bool gameOver: A flag indicating whether the game is over.
+
 •	int score: The player's score.
 
 Methods:
 
+
 •	GameBoard(): Constructor that initializes the game board and calls Reset().
+
 •	void Reset(): Resets the game state by reinitializing the snake, respawning the food, and resetting the score.
+
 •	void Draw(): Draws the game board, the snake, and the food on the console.
+
 •	void Input(): Handles player input for controlling the snake's movement.
+
 •	void Logic(): Contains the game logic, including movement, collision detection, and score updates.
+
 •	void GameOverScreen(): Displays the game over screen and handles input for restarting or exiting the game.
 
 
