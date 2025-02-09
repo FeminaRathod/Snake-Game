@@ -1,110 +1,94 @@
-Snake Game
+# Snake Game
 
-This is a simple implementation of Snake Game.This code uses a combination of standard C++ data structures (queue, set, and pair) and custom classes (Food, Snake, and Game Board) to implement the Snake game. The Snake class manages the snake's segments, direction, and movement, while the Food class handles the spawning of food on the board. The Game Board class integrates these components and manages the overall game logic, input handling, and rendering.
+This is a simple implementation of the classic **Snake Game** using C++. The game uses standard C++ data structures (`queue`, `set`, and `pair`) along with custom classes (`Food`, `Snake`, and `GameBoard`) to manage gameplay mechanics.
 
-	Overview
+## 📝 Overview
 
 The game includes:
+- **Food Class**: Handles the spawning of food on the game board.
+- **Snake Class**: Manages movement, growth, and self-collision of the snake.
+- **Game Board Class**: Oversees game logic, input handling, rendering and score update.
 
-    ->A Food class that handles the spawning of food on the game board.
-    
-    ->A Snake class that manages the movement, growth, and self-collision of the snake.
-    
-    ->A Game Board class that oversees the game logic, input handling, and rendering of the game.
+## 🎮 How to Play
 
-	How to Play :-
+Use the following controls to play:
 
-Use the following controls to play the game:
+- **W** → Move Up
+- **S** → Move Down
+- **A** → Move Left
+- **D** → Move Right
+- **X** → Exit Game
+- **R** → Restart Game
 
+The objective is to eat the food (marked as **'F'**) in order to score more and avoid collisions with the wall or the snake's own body.
 
-W: Move Up
+![Game Screenshot](https://github.com/FeminaRathod/Snake-Game/blob/1e16c75315ae1a374a10e6c1f5d3eee56239e168/Screenshot%202025-02-08%20225614.png)
 
-S: Move Down
+## 📌 Data Structures Used
 
-A: Move Left
+### 1️⃣ Queue (`std::queue`)
+- Used in the `Snake` class to store the snake's body segments.
+- Allows efficient insertion of new segments at the head and removal at the tail.
 
-D: Move Right
+### 2️⃣ Set (`std::set`)
+- Maintains the snake's body positions for quick lookup.
+- Helps efficiently detect self-collisions.
 
-X: Exit Game
+### 3️⃣ Pair (`std::pair`)
+- Represents coordinates of the snake's segments, food, and head.
+- Convenient for handling (x, y) positions.
 
-The objective is to eat the food (marked as 'F') and avoid collisions with the wall or the snake's own body.
+## 🏗️ Class Structure
 
-![image alt](https://github.com/FeminaRathod/Snake-Game/blob/1e16c75315ae1a374a10e6c1f5d3eee56239e168/Screenshot%202025-02-08%20225614.png)
+### **Food Class**
+**Attributes:**
+- `int x, y` → Coordinates of the food.
 
-Data Structures Used:
+**Methods:**
+- `Food()` → Initializes food by calling `Respawn()`.
+- `void Respawn()` → Generates random food coordinates within the board.
 
-1)Queue (std::queue):
-	Used in the Snake class to store the segments of the snake's body.
-	Allows easy insertion of new segments at the head and removal of old segments at the tail, which is efficient for the snake's movement.
+### **Snake Class**
+**Attributes:**
+- `queue<pair<int, int>> body` → Stores the snake's segments.
+- `set<pair<int, int>> bodySet` → Tracks the body for collision detection.
+- `eDirection direction` → Current movement direction.
+- `pair<int, int> head` → Snake's head position.
 
-2)Set (std::set):
-	Used in the Snake class as a body Set to keep track of the snake's body segments for quick lookup.
-	Helps in detecting self-collision efficiently by checking if the head position already exists in the set.
+**Methods:**
+- `Snake()` → Initializes snake with three segments, facing **right**.
+- `void Move(bool grow)` → Moves the snake. If `grow` is `true`, the snake grows by keeping the tail.
+- `bool CollidedWithSelf()` → Checks if the snake collides with itself.
 
-3)Pair (std::pair):
-	Used to represent the coordinates of the snake's segments, the food's position, and the snake's head.
-	Provides a convenient way to manage and manipulate (x, y) coordinates.
+### **GameBoard Class**
+**Attributes:**
+- `Snake snake` → Manages the snake.
+- `Food food` → Manages food spawning.
+- `bool gameOver` → Tracks game status.
+- `int score` → Player's score.
 
+**Methods:**
+- `GameBoard()` → Initializes the game and resets it.
+- `void Reset()` → Resets the game state.
+- `void Draw()` → Renders the game board.
+- `void Input()` → Handles player input.
+- `void Logic()` → Implements game mechanics and **handles score updates**.
+- `void GameOverScreen()` → Displays game-over screen and handles restart.
 
-Class Structure:
+## ⚙️ Technical Details
 
-	Food Class:
+### **Programming Concepts Used**
+- **OOP (Object-Oriented Programming)**
+  - `Snake`, `Food`, and `GameBoard` classes
+  - Encapsulation of game logic
+- **Data Structures**
+  - `Queue` (or `Vector`) for snake’s body
+  - 2D Grid representation of game area
+- **Keyboard Input Handling** (`_kbhit()` and `_getch()`)
 
-Attributes:
+## 🚀 Future Enhancements
+- **Obstacles & Levels** → Add walls and difficulty levels.
+- **Special Power-ups** → Bonus food for speed boosts.
+- **Multiplayer Mode** → Play with another snake.
 
-•	int x, y: Coordinates of the food on the game board.
-
-Methods:
-
-•	Food(): Constructor that initializes the food by calling Respawn().
-
-•	void Respawn(): Randomly generates new coordinates for the food within the game board's boundaries.
-
-	Snake Class:
-
-Attributes:
-
-•	queue<pair<int, int>> body: Stores the segments of the snake's body.
-
-•	set<pair<int, int>> bodySet: Keeps track of the snake's body segments for collision detection.
-
-•	eDirection direction: Enum representing the current direction of the snake's movement.
-
-•	pair<int, int> head: Coordinates of the snake's head.
-
-Methods:
-
-•	Snake(): Constructor that initializes the snake with three segments, sets the initial direction to RIGHT, and places the head at the center of the board.
-
-•	void Move(bool grow): Moves the snake in the current direction. If the snake eats food (grow is true), it grows by not removing the tail segment.
-
-•	bool CollidedWithSelf(): Checks if the snake's head has collided with any other part of its body.
-
-	GameBoard Class:
-
-Attributes:
-
-•	Snake snake: An instance of the Snake class representing the snake in the game.
-
-•	Food food: An instance of the Food class representing the food in the game.
-
-•	bool gameOver: A flag indicating whether the game is over.
-
-•	int score: The player's score.
-
-Methods:
-
-
-•	GameBoard(): Constructor that initializes the game board and calls Reset().
-
-•	void Reset(): Resets the game state by reinitializing the snake, respawning the food, and resetting the score.
-
-•	void Draw(): Draws the game board, the snake, and the food on the console.
-
-•	void Input(): Handles player input for controlling the snake's movement.
-
-•	void Logic(): Contains the game logic, including movement, collision detection, and score updates.
-
-•	void GameOverScreen(): Displays the game over screen and handles input for restarting or exiting the game.
-
-
+---
