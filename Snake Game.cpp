@@ -8,7 +8,7 @@
 using namespace std;
 
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
-const int width = 20, height = 20;
+const int width = 50, height = 20;
 
 class Food {
 public:
@@ -20,7 +20,7 @@ public:
 class Snake {
 public:
     queue<pair<int, int>> body;
-    set<pair<int, int>> bodySet;  // Faster lookup for self-collision
+    multiset<pair<int, int>> bodySet;  // Faster lookup for self-collision
     eDirection direction;
     pair<int, int> head;
 
@@ -103,7 +103,7 @@ public:
             temp.pop();
             grid[segment.second][segment.first] = 'o';
         }
-        grid[snake.head.second][snake.head.first] = 'O';
+        grid[snake.head.second][snake.head.first] = '@';
 
         // Draw board
         for (int i = 0; i < width + 2; i++) cout << "#";
